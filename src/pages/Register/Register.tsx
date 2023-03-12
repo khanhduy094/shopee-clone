@@ -1,27 +1,50 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm } from 'react-hook-form'
-import { getRules } from 'src/utils/rules'
+import { useMutation } from 'react-query'
+import { Link } from 'react-router-dom'
+import { registerAccount } from 'src/apis/auth.api'
 import Input from 'src/components/Input'
+import { ErrorResponse } from 'src/types/utils.type'
+import { schema, SchemaType } from 'src/utils/rules'
+import { isAxiosUnprocessableEntityError } from 'src/utils/utils'
 
-interface FormData {
-  email: string
-  password: string
-  confirm_password: string
-}
+type FormData = SchemaType
 
 export default function Register() {
   const {
     register,
     handleSubmit,
-    getValues,
+    setError,
     formState: { errors }
-  } = useForm<FormData>()
+  } = useForm<FormData>({
+    resolver: yupResolver(schema)
+  })
 
-  const rules = getRules(getValues)
+  const registerMutation = useMutation({
+    mutationFn: (body: Omit<FormData, 'confirm_password'>) => registerAccount(body)
+  })
 
   const onSubmit = handleSubmit((data) => {
     console.log(data)
+    const { confirm_password, ...body } = data
+    registerMutation.mutate(body, {
+      onSuccess: (data) => {
+        console.log(data)
+      },
+      onError: (error) => {
+        if (isAxiosUnprocessableEntityError<ErrorResponse<Omit<FormData, 'confirm_password'>>>(error)) {
+          const formError = error.response?.data.data
+          if (formError) {
+            Object.keys(formError).forEach((key) => {
+              setError(key as keyof Omit<FormData, 'confirm_password'>, {
+                message: formError[key as keyof Omit<FormData, 'confirm_password'>],
+                type: 'Server'
+              })
+            })
+          }
+        }
+      }
+    })
   })
 
   return (
@@ -37,7 +60,6 @@ export default function Register() {
                 placeholder='Email'
                 type='email'
                 register={register}
-                rules={rules.email}
                 errorMessage={errors.email?.message}
               />
               <Input
@@ -45,15 +67,15 @@ export default function Register() {
                 placeholder='Password'
                 type='password'
                 register={register}
-                rules={rules.password}
+                autoComplete='on'
                 errorMessage={errors.password?.message}
               />
               <Input
                 name='confirm_password'
                 placeholder='Confirm Password'
                 type='password'
+                autoComplete='on'
                 register={register}
-                rules={rules.confirm_password}
                 errorMessage={errors.confirm_password?.message}
               />
 
