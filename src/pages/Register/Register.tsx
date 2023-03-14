@@ -1,9 +1,13 @@
 import { yupResolver } from '@hookform/resolvers/yup'
+import path from 'src/constants/path'
+import { useContext } from 'react'
 import { useForm } from 'react-hook-form'
 import { useMutation } from 'react-query'
 import { Link } from 'react-router-dom'
-import { registerAccount } from 'src/apis/auth.api'
+import authApi from 'src/apis/auth.api'
+import Button from 'src/components/Button'
 import Input from 'src/components/Input'
+import { AppContext } from 'src/contexts/app.context'
 import { ErrorResponse } from 'src/types/utils.type'
 import { schema, SchemaType } from 'src/utils/rules'
 import { isAxiosUnprocessableEntityError } from 'src/utils/utils'
@@ -19,9 +23,9 @@ export default function Register() {
   } = useForm<FormData>({
     resolver: yupResolver(schema)
   })
-
+  const { setIsAuthenticated, setProfile } = useContext(AppContext)
   const registerMutation = useMutation({
-    mutationFn: (body: Omit<FormData, 'confirm_password'>) => registerAccount(body)
+    mutationFn: (body: Omit<FormData, 'confirm_password'>) => authApi.registerAccount(body)
   })
 
   const onSubmit = handleSubmit((data) => {
@@ -29,7 +33,8 @@ export default function Register() {
     const { confirm_password, ...body } = data
     registerMutation.mutate(body, {
       onSuccess: (data) => {
-        console.log(data)
+        setProfile(data.data.data.user)
+        setIsAuthenticated(true)
       },
       onError: (error) => {
         if (isAxiosUnprocessableEntityError<ErrorResponse<Omit<FormData, 'confirm_password'>>>(error)) {
@@ -80,16 +85,18 @@ export default function Register() {
               />
 
               <div className='mt-2'>
-                <button
+                <Button
                   type='submit'
-                  className='text-upper-case w-full bg-red-500 py-4 px-2 text-center text-white hover:text-red-600'
+                  className='text-upper-case flex w-full items-center justify-center bg-red-500 py-4 px-2 text-center text-white hover:text-red-600'
+                  isLoading={registerMutation.isLoading}
+                  disabled={registerMutation.isLoading}
                 >
                   Đăng ký
-                </button>
+                </Button>
               </div>
               <div className='mt-8 flex items-center justify-center'>
                 <span className='text-gray-300'>Bạn đã có tài khoản?</span>
-                <Link to='/login' className='ml-1 text-red-400'>
+                <Link to={path.login} className='ml-1 text-red-400'>
                   Đăng nhập
                 </Link>
               </div>
