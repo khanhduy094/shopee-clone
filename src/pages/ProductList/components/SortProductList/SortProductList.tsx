@@ -2,10 +2,45 @@ import classNames from 'classnames'
 import omit from 'lodash/omit'
 import { createSearchParams, Link, useNavigate } from 'react-router-dom'
 import path from 'src/constants/path'
+import { sortBy, order as orderConstant } from 'src/constants/product'
+import { ProductListConfig } from 'src/types/product.type'
+import { QueryConfig } from '../../ProductList'
 
-export default function SortProductList({ queryConfig, pageSize }: any) {
-  const page = 1
-
+interface Props {
+  queryConfig: QueryConfig
+  pageSize: number
+}
+export default function SortProductList({ queryConfig, pageSize }: Props) {
+  const page = Number(queryConfig.page)
+  const navigate = useNavigate()
+  const { sort_by = sortBy.createdAt, order } = queryConfig
+  const isActiveSortBy = (sortByValue: Exclude<ProductListConfig['sort_by'], undefined>) => {
+    return sort_by === sortByValue
+  }
+  const handleSort = (sortByValue: Exclude<ProductListConfig['sort_by'], undefined>) => {
+    navigate({
+      pathname: path.home,
+      search: createSearchParams(
+        omit(
+          {
+            ...queryConfig,
+            sort_by: sortByValue
+          },
+          ['order']
+        )
+      ).toString()
+    })
+  }
+  const handlePriceOrder = (orderValue: Exclude<ProductListConfig['order'], undefined>) => {
+    navigate({
+      pathname: path.home,
+      search: createSearchParams({
+        ...queryConfig,
+        sort_by: sortBy.price,
+        order: orderValue
+      }).toString()
+    })
+  }
   return (
     <div className='bg-gray-300/40 py-4 px-3'>
       <div className='flex flex-wrap items-center justify-between gap-2'>
@@ -13,43 +48,46 @@ export default function SortProductList({ queryConfig, pageSize }: any) {
           <div>Sắp xếp theo</div>
           <button
             className={classNames('h-8 px-4 text-center text-sm capitalize ', {
-              'bg-orange text-white hover:bg-orange/80': true
-              // 'bg-white text-black hover:bg-slate-100': !isActiveSortBy(sortBy.view)
+              'bg-orange text-white hover:bg-orange/80': isActiveSortBy(sortBy.view),
+              'bg-white text-black hover:bg-slate-100': !isActiveSortBy(sortBy.view)
             })}
+            onClick={() => handleSort('view')}
           >
             Phổ biến
           </button>
           <button
             className={classNames('h-8 px-4 text-center text-sm capitalize ', {
-              // 'bg-orange text-white hover:bg-orange/80': isActiveSortBy(sortBy.createdAt),
-              'bg-white text-black hover:bg-slate-100': true
+              'bg-orange text-white hover:bg-orange/80': isActiveSortBy(sortBy.createdAt),
+              'bg-white text-black hover:bg-slate-100': !isActiveSortBy(sortBy.createdAt)
             })}
+            onClick={() => handleSort('createdAt')}
           >
             Mới nhất
           </button>
           <button
             className={classNames('h-8 px-4 text-center text-sm capitalize ', {
-              // 'bg-orange text-white hover:bg-orange/80': isActiveSortBy(sortBy.sold),
-              'bg-white text-black hover:bg-slate-100': true
+              'bg-orange text-white hover:bg-orange/80': isActiveSortBy(sortBy.sold),
+              'bg-white text-black hover:bg-slate-100': !isActiveSortBy(sortBy.sold)
             })}
+            onClick={() => handleSort('sold')}
           >
             Bán chạy
           </button>
           <select
             className={classNames('h-8  px-4 text-left text-sm capitalize  outline-none ', {
-              // 'bg-orange text-white hover:bg-orange/80': isActiveSortBy(sortBy.price),
-              'bg-white text-black hover:bg-slate-100': true
+              'bg-orange text-white hover:bg-orange/80': isActiveSortBy(sortBy.price),
+              'bg-white text-black hover:bg-slate-100': !isActiveSortBy(sortBy.price)
             })}
-            // value={order || ''}
-            // onChange={(event) => handlePriceOrder(event.target.value as Exclude<ProductListConfig['order'], undefined>)}
+            value={order || ''}
+            onChange={(event) => handlePriceOrder(event.target.value as Exclude<ProductListConfig['order'], undefined>)}
           >
             <option value='' disabled className='bg-white text-black'>
               Giá
             </option>
-            <option value='sd' className='bg-white text-black'>
+            <option value={orderConstant.asc} className='bg-white text-black'>
               Giá: Thấp đến cao
             </option>
-            <option value='ádsa' className='bg-white text-black'>
+            <option value={orderConstant.desc} className='bg-white text-black'>
               Giá: Cao đến thấp
             </option>
           </select>
@@ -58,8 +96,7 @@ export default function SortProductList({ queryConfig, pageSize }: any) {
         <div className='flex items-center'>
           <div>
             <span className='text-orange'>{page}</span>
-            {/* <span>/{pageSize}</span> */}
-            <span>/2</span>
+            <span>/{pageSize}</span>
           </div>
           <div className='ml-2 flex'>
             {page === 1 ? (
@@ -77,7 +114,13 @@ export default function SortProductList({ queryConfig, pageSize }: any) {
               </span>
             ) : (
               <Link
-                to={path.home}
+                to={{
+                  pathname: path.home,
+                  search: createSearchParams({
+                    ...queryConfig,
+                    page: (page - 1).toString()
+                  }).toString()
+                }}
                 className='flex h-8 w-9  items-center justify-center rounded-tl-sm rounded-bl-sm bg-white  shadow hover:bg-slate-100'
               >
                 <svg
@@ -107,7 +150,13 @@ export default function SortProductList({ queryConfig, pageSize }: any) {
               </span>
             ) : (
               <Link
-                to={path.home}
+                to={{
+                  pathname: path.home,
+                  search: createSearchParams({
+                    ...queryConfig,
+                    page: (page + 1).toString()
+                  }).toString()
+                }}
                 className='flex h-8 w-9  items-center justify-center rounded-tl-sm rounded-bl-sm bg-white  shadow hover:bg-slate-100'
               >
                 <svg
