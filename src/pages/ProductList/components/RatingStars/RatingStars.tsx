@@ -1,22 +1,23 @@
 import { createSearchParams, useNavigate } from 'react-router-dom'
 import path from 'src/constants/path'
+import { QueryConfig } from '../../ProductList'
 
-// interface Props {
-//   queryConfig: QueryConfig
-// }
+interface Props {
+  queryConfig: QueryConfig
+}
 
-export default function RatingStars() {
-  // const navigate = useNavigate()
+export default function RatingStars({ queryConfig }: Props) {
+  const navigate = useNavigate()
 
-  // const handleFilterStar = (ratingFilter: number) => {
-  //   navigate({
-  //     pathname: path.home,
-  //     search: createSearchParams({
-  //       ...queryConfig,
-  //       rating_filter: String(ratingFilter)
-  //     }).toString()
-  //   })
-  // }
+  const handleFilterStar = (ratingFilter: number) => {
+    navigate({
+      pathname: path.home,
+      search: createSearchParams({
+        ...queryConfig,
+        rating_filter: String(ratingFilter)
+      }).toString()
+    })
+  }
 
   return (
     <ul className='my-3'>
@@ -24,7 +25,13 @@ export default function RatingStars() {
         .fill(0)
         .map((_, index) => (
           <li className='py-1 pl-2' key={index}>
-            <div className='flex cursor-pointer items-center text-sm' tabIndex={0} role='button' aria-hidden='true'>
+            <div
+              className='flex cursor-pointer items-center text-sm'
+              tabIndex={0}
+              role='button'
+              aria-hidden='true'
+              onClick={() => handleFilterStar(5 - index)}
+            >
               {Array(5)
                 .fill(0)
                 .map((_, indexStar) => {

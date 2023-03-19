@@ -8,6 +8,7 @@ import Login from './pages/Login'
 import ProductList from './pages/ProductList'
 import Register from './pages/Register'
 import path from 'src/constants/path'
+import ProductDetail from './pages/ProductDetail'
 
 const ProjectedRoute = () => {
   const { isAuthenticated } = useContext(AppContext)
@@ -21,6 +22,14 @@ const RejectedRoute = () => {
 
 export default function useRouteElements() {
   const element = useRoutes([
+    {
+      path: path.productDetail,
+      element: (
+        <MainLayout>
+          <ProductDetail />
+        </MainLayout>
+      )
+    },
     {
       path: path.home,
       index: true,

@@ -30,6 +30,7 @@ export default function Register() {
 
   const onSubmit = handleSubmit((data) => {
     console.log(data)
+
     const { confirm_password, ...body } = data
     registerMutation.mutate(body, {
       onSuccess: (data) => {
