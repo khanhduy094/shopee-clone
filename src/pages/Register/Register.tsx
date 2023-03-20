@@ -11,9 +11,10 @@ import { AppContext } from 'src/contexts/app.context'
 import { ErrorResponse } from 'src/types/utils.type'
 import { schema, SchemaType } from 'src/utils/rules'
 import { isAxiosUnprocessableEntityError } from 'src/utils/utils'
+import { toast } from 'react-toastify'
 
-type FormData = SchemaType
-
+type FormData = Omit<SchemaType, 'name'>
+const registerSchema = schema.pick(['email', 'password', 'confirm_password'])
 export default function Register() {
   const {
     register,
@@ -21,7 +22,7 @@ export default function Register() {
     setError,
     formState: { errors }
   } = useForm<FormData>({
-    resolver: yupResolver(schema)
+    resolver: yupResolver(registerSchema)
   })
   const { setIsAuthenticated, setProfile } = useContext(AppContext)
   const registerMutation = useMutation({
@@ -36,6 +37,7 @@ export default function Register() {
       onSuccess: (data) => {
         setProfile(data.data.data.user)
         setIsAuthenticated(true)
+        toast.success('Đăng ký tài khoản thành công')
       },
       onError: (error) => {
         if (isAxiosUnprocessableEntityError<ErrorResponse<Omit<FormData, 'confirm_password'>>>(error)) {

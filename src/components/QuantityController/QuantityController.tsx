@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import InputNumber, { InputNumberProps } from '../InputNumber'
 
 interface Props extends InputNumberProps {
@@ -17,15 +18,16 @@ export default function QuantityController({
   max,
   ...rest
 }: Props) {
+  const [localValue, setLocalValue] = useState(Number(value || 0))
   const increase = () => {
-    let newValue = Number(value) + 1
+    let newValue = Number(value || localValue) + 1
     if (max !== undefined && newValue > max) {
       newValue = max
     }
     onIncrease && onIncrease(newValue)
   }
   const decrease = () => {
-    let newValue = Number(value) + 1
+    let newValue = Number(value || localValue) - 1
     if (newValue < 1) {
       newValue = 1
     }
@@ -63,7 +65,7 @@ export default function QuantityController({
         classNameInput='h-8 w-14 border-t border-b border-gray-300 p-1 text-center outline-none'
         {...rest}
         onChange={handleChange}
-        value={value}
+        value={value || localValue}
       />
       <button
         className='flex h-8 w-8 items-center justify-center rounded-r-sm border border-gray-300 text-gray-600'

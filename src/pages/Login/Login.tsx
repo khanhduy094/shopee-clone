@@ -12,8 +12,8 @@ import { ErrorResponse } from 'src/types/utils.type'
 import { schema, SchemaType } from 'src/utils/rules'
 import { isAxiosUnprocessableEntityError } from 'src/utils/utils'
 
-type FormData = Omit<SchemaType, 'confirm_password'>
-const loginSchema = schema.omit(['confirm_password'])
+type FormData = Pick<SchemaType, 'email' | 'password'>
+const loginSchema = schema.omit(['confirm_password', 'name'])
 export default function Login() {
   const {
     register,

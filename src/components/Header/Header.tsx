@@ -1,26 +1,26 @@
-import { arrow, offset, safePolygon, shift, useFloating, useHover, useInteractions } from '@floating-ui/react'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { omit } from 'lodash'
 import { useContext, useRef, useState } from 'react'
-import { useMutation, useQuery } from 'react-query'
+import { useForm } from 'react-hook-form'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { createSearchParams, Link, useNavigate } from 'react-router-dom'
 import authApi from 'src/apis/auth.api'
-import { AppContext } from 'src/contexts/app.context'
-import noproduct from 'src/assets/images/no-product.png'
-import Popover from '../Popover'
-import path from 'src/constants/path'
-import useQueryConfig from 'src/hooks/useQueryConfig'
-import { useForm } from 'react-hook-form'
-import { omit } from 'lodash'
-import { schema, SchemaType } from 'src/utils/rules'
-import { yupResolver } from '@hookform/resolvers/yup'
 import purchaseApi from 'src/apis/puchase.api'
+import noproduct from 'src/assets/images/no-product.png'
+import path from 'src/constants/path'
 import { purchasesStatus } from 'src/constants/purchase'
+import { AppContext } from 'src/contexts/app.context'
+import useQueryConfig from 'src/hooks/useQueryConfig'
+import { schema, SchemaType } from 'src/utils/rules'
 import { formatCurrency } from 'src/utils/utils'
+import Popover from '../Popover'
 
 type FormData = Pick<SchemaType, 'name'>
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
   const MAX_PURCHASES = 5
   const arrowRef = useRef(null)
+  const queryClient = useQueryClient()
   const queryConfig = useQueryConfig()
   const { profile, isAuthenticated, setIsAuthenticated, setProfile } = useContext(AppContext)
   const navigate = useNavigate()
@@ -36,6 +36,7 @@ export default function Header() {
     onSuccess: () => {
       setIsAuthenticated(false)
       setProfile(null)
+      queryClient.removeQueries({ queryKey: ['purchases', { status: purchasesStatus.inCart }] })
     }
   })
   const onSubmitSearch = handleSubmit((data) => {
@@ -58,7 +59,8 @@ export default function Header() {
   })
   const { data: purchasesInCartData } = useQuery({
     queryKey: ['purchases', { status: purchasesStatus.inCart }],
-    queryFn: () => purchaseApi.getPurchases({ status: purchasesStatus.inCart })
+    queryFn: () => purchaseApi.getPurchases({ status: purchasesStatus.inCart }),
+    enabled: isAuthenticated
   })
 
   const handleLogout = () => {
@@ -224,7 +226,7 @@ export default function Header() {
                           hàng vào giỏ
                         </div>
                         <Link
-                          to='/'
+                          to={path.cart}
                           className='rounded-sm bg-orange px-4 py-2 capitalize text-white hover:bg-opacity-90'
                         >
                           Xem giỏ hàng

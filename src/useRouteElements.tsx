@@ -9,6 +9,7 @@ import ProductList from './pages/ProductList'
 import Register from './pages/Register'
 import path from 'src/constants/path'
 import ProductDetail from './pages/ProductDetail'
+import Cart from './pages/Cart'
 
 const ProjectedRoute = () => {
   const { isAuthenticated } = useContext(AppContext)
@@ -48,6 +49,20 @@ export default function useRouteElements() {
           element: (
             <MainLayout>
               <Profile />
+            </MainLayout>
+          )
+        }
+      ]
+    },
+    {
+      path: '',
+      element: <ProjectedRoute />,
+      children: [
+        {
+          path: path.cart,
+          element: (
+            <MainLayout>
+              <Cart />
             </MainLayout>
           )
         }
