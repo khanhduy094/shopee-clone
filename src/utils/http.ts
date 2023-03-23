@@ -31,9 +31,6 @@ class Http {
     )
     this.instance.interceptors.response.use(
       (response) => {
-        // Any status code that lie within the range of 2xx cause this function to trigger
-        // Do something with response data
-        // console.log(response)
         const { url } = response.config
         if (url === 'login' || url === 'register') {
           const data = response.data as AuthResponse
@@ -54,6 +51,10 @@ class Http {
           const data: any | undefined = error.response?.data
           const errorMess = data.message || error.message
           toast.error(errorMess)
+        }
+        // Lỗi 401
+        if (error.response?.status !== HttpStatusCode.Unauthorized) {
+          clearLS()
         }
 
         return Promise.reject(error)

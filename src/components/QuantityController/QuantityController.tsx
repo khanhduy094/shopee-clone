@@ -13,6 +13,7 @@ export default function QuantityController({
   onIncrease,
   onDecrease,
   onType,
+  onFocusOut,
   classNameWrapper = 'ml-10',
   value,
   max,
@@ -42,6 +43,10 @@ export default function QuantityController({
     }
     onType && onType(_value)
   }
+
+  const handleBlur = (event: React.FocusEvent<HTMLInputElement, Element>) => {
+    onFocusOut && onFocusOut(Number(event.target.value))
+  }
   return (
     <div className={'flex items-center ' + classNameWrapper}>
       <button
@@ -65,6 +70,7 @@ export default function QuantityController({
         classNameInput='h-8 w-14 border-t border-b border-gray-300 p-1 text-center outline-none'
         {...rest}
         onChange={handleChange}
+        onBlur={handleBlur}
         value={value || localValue}
       />
       <button

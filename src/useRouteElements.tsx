@@ -1,6 +1,5 @@
 import { useContext } from 'react'
 import { Navigate, Outlet, useRoutes } from 'react-router-dom'
-import Profile from './components/Profile'
 import { AppContext } from './contexts/app.context'
 import MainLayout from './layouts/MainLayout'
 import RegisterLayout from './layouts/RegisterLayout'
@@ -10,6 +9,11 @@ import Register from './pages/Register'
 import path from 'src/constants/path'
 import ProductDetail from './pages/ProductDetail'
 import Cart from './pages/Cart'
+import CartLayout from './layouts/CartLayout/CartLayout'
+import UserLayout from './pages/User/Layouts/UserLayout'
+import HistoryPurchase from './pages/User/Pages/HistroryPurchase'
+import ChangePassword from './pages/User/Pages/ChangePassword'
+import Profile from './pages/User/Pages/Profile'
 
 const ProjectedRoute = () => {
   const { isAuthenticated } = useContext(AppContext)
@@ -45,26 +49,34 @@ export default function useRouteElements() {
       element: <ProjectedRoute />,
       children: [
         {
-          path: path.profile,
-          element: (
-            <MainLayout>
-              <Profile />
-            </MainLayout>
-          )
-        }
-      ]
-    },
-    {
-      path: '',
-      element: <ProjectedRoute />,
-      children: [
-        {
           path: path.cart,
           element: (
-            <MainLayout>
+            <CartLayout>
               <Cart />
-            </MainLayout>
+            </CartLayout>
           )
+        },
+        {
+          path: path.user,
+          element: (
+            <MainLayout>
+              <UserLayout />
+            </MainLayout>
+          ),
+          children: [
+            {
+              path: path.profile,
+              element: <Profile />
+            },
+            {
+              path: path.changePassword,
+              element: <ChangePassword />
+            },
+            {
+              path: path.historyPurchase,
+              element: <HistoryPurchase />
+            }
+          ]
         }
       ]
     },
