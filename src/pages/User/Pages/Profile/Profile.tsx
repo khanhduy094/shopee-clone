@@ -1,11 +1,14 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Fragment, useEffect } from 'react'
+import { Fragment, useContext, useEffect } from 'react'
 import { Controller, useForm, useFormContext } from 'react-hook-form'
 import { useMutation, useQuery } from 'react-query'
+import { toast } from 'react-toastify'
 import userApi from 'src/apis/user.api'
 import Button from 'src/components/Button'
 import Input from 'src/components/Input'
 import InputNumber from 'src/components/InputNumber'
+import { AppContext } from 'src/contexts/app.context'
+import { setProfileToLS } from 'src/utils/auth'
 import { userSchema, UserType } from 'src/utils/rules'
 import DateSelect from '../../components/DateSelect'
 
@@ -55,6 +58,7 @@ type FormData = Pick<UserType, 'name' | 'phone' | 'avatar' | 'date_of_birth' | '
 const profileSchema = userSchema.pick(['name', 'address', 'phone', 'avatar', 'date_of_birth'])
 
 export default function Profile() {
+  const { setProfile } = useContext(AppContext)
   const {
     register,
     formState: { errors },
@@ -71,7 +75,7 @@ export default function Profile() {
     },
     resolver: yupResolver(profileSchema)
   })
-  const { data: profileData } = useQuery({
+  const { data: profileData, refetch } = useQuery({
     queryKey: ['profile'],
     queryFn: userApi.getProfile
   })
@@ -93,7 +97,15 @@ export default function Profile() {
   const onSubmit = handleSubmit(async (data) => {
     console.log(data)
 
-    // await updateProfileMutation.mutateAsync({})
+    const res = await updateProfileMutation.mutateAsync({
+      ...data,
+      date_of_birth: data.date_of_birth?.toISOString(),
+      __v: 0
+    })
+    refetch()
+    toast.success(res.data.message)
+    setProfile(res.data.data)
+    setProfileToLS(res.data.data)
   })
 
   return (

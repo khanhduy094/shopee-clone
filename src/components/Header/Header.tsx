@@ -1,6 +1,6 @@
 import { useContext } from 'react'
 import { useQuery } from 'react-query'
-import { Link, useLocation } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import purchaseApi from 'src/apis/puchase.api'
 import noproduct from 'src/assets/images/no-product.png'
 import path from 'src/constants/path'
