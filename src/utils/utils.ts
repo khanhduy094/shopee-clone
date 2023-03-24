@@ -1,5 +1,7 @@
 import axios, { AxiosError } from 'axios'
+import config from 'src/constants/config'
 import HttpStatusCode from 'src/constants/httpStatusCode.enum'
+import userImage from 'src/assets/images/user.svg'
 
 export function isAxiosError<T>(error: unknown): error is AxiosError<T> {
   // eslint-disable-next-line import/no-named-as-default-member
@@ -38,3 +40,5 @@ export const getIdFromNameId = (nameId: string) => {
 }
 
 export const rateSale = (original: number, sale: number) => Math.round(((original - sale) / original) * 100) + '%'
+
+export const getAvatarUrl = (avatarName?: string) => (avatarName ? `${config.baseUrl}images/${avatarName}` : userImage)

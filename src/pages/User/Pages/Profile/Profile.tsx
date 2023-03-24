@@ -1,15 +1,19 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Fragment, useContext, useEffect } from 'react'
+import { Fragment, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Controller, useForm, useFormContext } from 'react-hook-form'
 import { useMutation, useQuery } from 'react-query'
 import { toast } from 'react-toastify'
 import userApi from 'src/apis/user.api'
 import Button from 'src/components/Button'
 import Input from 'src/components/Input'
+import InputFile from 'src/components/InputFile'
 import InputNumber from 'src/components/InputNumber'
+import config from 'src/constants/config'
 import { AppContext } from 'src/contexts/app.context'
+import { ErrorResponse } from 'src/types/utils.type'
 import { setProfileToLS } from 'src/utils/auth'
 import { userSchema, UserType } from 'src/utils/rules'
+import { getAvatarUrl, isAxiosUnprocessableEntityError } from 'src/utils/utils'
 import DateSelect from '../../components/DateSelect'
 
 function Info() {
@@ -55,15 +59,25 @@ function Info() {
 }
 
 type FormData = Pick<UserType, 'name' | 'phone' | 'avatar' | 'date_of_birth' | 'address'>
+type FormDataError = Omit<FormData, 'date_of_birth'> & {
+  date_of_birth?: string
+}
 const profileSchema = userSchema.pick(['name', 'address', 'phone', 'avatar', 'date_of_birth'])
 
 export default function Profile() {
   const { setProfile } = useContext(AppContext)
+  const [file, setFile] = useState<File>()
+  const previewImage = useMemo(() => {
+    return file ? URL.createObjectURL(file) : ''
+  }, [file])
+
   const {
     register,
     formState: { errors },
     control,
     handleSubmit,
+    watch,
+    setError,
     setValue
   } = useForm<FormData>({
     defaultValues: {
@@ -75,6 +89,7 @@ export default function Profile() {
     },
     resolver: yupResolver(profileSchema)
   })
+  const avatar = watch('avatar')
   const { data: profileData, refetch } = useQuery({
     queryKey: ['profile'],
     queryFn: userApi.getProfile
@@ -82,8 +97,9 @@ export default function Profile() {
   const updateProfileMutation = useMutation({
     mutationFn: userApi.updateProfile
   })
+  const uploadAvatarMutaion = useMutation(userApi.uploadAvatar)
   const profile = profileData?.data.data
-  console.log(profile)
+
   useEffect(() => {
     if (profile) {
       setValue('name', profile.name)
@@ -95,19 +111,43 @@ export default function Profile() {
   }, [profile, setValue])
 
   const onSubmit = handleSubmit(async (data) => {
-    console.log(data)
-
-    const res = await updateProfileMutation.mutateAsync({
-      ...data,
-      date_of_birth: data.date_of_birth?.toISOString(),
-      __v: 0
-    })
-    refetch()
-    toast.success(res.data.message)
-    setProfile(res.data.data)
-    setProfileToLS(res.data.data)
+    try {
+      let avatarName = avatar
+      if (file) {
+        // upload ảnh lên server r lấy data trả về set vảo Profile Form
+        const form = new FormData()
+        form.append('image', file)
+        const uploadRes = await uploadAvatarMutaion.mutateAsync(form)
+        avatarName = uploadRes.data.data
+        setValue('avatar', avatarName)
+      }
+      const res = await updateProfileMutation.mutateAsync({
+        ...data,
+        date_of_birth: data.date_of_birth?.toISOString(),
+        avatar: avatarName,
+        __v: 0
+      })
+      refetch()
+      toast.success(res.data.message)
+      setProfile(res.data.data)
+      setProfileToLS(res.data.data)
+    } catch (error) {
+      if (isAxiosUnprocessableEntityError<ErrorResponse<FormDataError>>(error)) {
+        const formError = error.response?.data.data
+        if (formError) {
+          Object.keys(formError).forEach((key) => {
+            setError(key as keyof FormDataError, {
+              message: formError[key as keyof FormDataError],
+              type: 'Server'
+            })
+          })
+        }
+      }
+    }
   })
-
+  const handleChangeFile = (file?: File) => {
+    setFile(file)
+  }
   return (
     <div className='rounded-sm bg-white px-2 pb-10 shadow md:px-7 md:pb-20'>
       <div className='border-b border-b-gray-200 py-6'>
@@ -158,10 +198,13 @@ export default function Profile() {
         <div className='flex justify-center md:w-72 md:border-l md:border-l-gray-200'>
           <div className='flex flex-col items-center'>
             <div className='my-5 h-24 w-24'>
-              <img src='' alt='' className='h-full w-full rounded-full object-cover' />
+              <img
+                src={previewImage || getAvatarUrl(avatar)}
+                alt=''
+                className='h-full w-full rounded-full object-cover'
+              />
             </div>
-            {/* <InputFile onChange={handleChangeFile} /> */}
-            <div>Input File</div>
+            <InputFile onChange={handleChangeFile} />
             <div className='mt-3 text-gray-400'>
               <div>Dụng lượng file tối đa 1 MB</div>
               <div>Định dạng:.JPEG, .PNG</div>
