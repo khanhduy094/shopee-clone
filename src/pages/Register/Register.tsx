@@ -12,6 +12,7 @@ import { ErrorResponse } from 'src/types/utils.type'
 import { schema, SchemaType } from 'src/utils/rules'
 import { isAxiosUnprocessableEntityError } from 'src/utils/utils'
 import { toast } from 'react-toastify'
+import { Helmet } from 'react-helmet-async'
 
 type FormData = Omit<SchemaType, 'name'>
 const registerSchema = schema.pick(['email', 'password', 'confirm_password'])
@@ -57,6 +58,10 @@ export default function Register() {
 
   return (
     <div className='bg-orange'>
+      <Helmet>
+        <title>Đăng ký | ShopeeClone</title>
+        <meta name='description' content='Đăng nhập | Shopee Clone' />
+      </Helmet>
       <div className='container'>
         <div className='grid grid-cols-1 py-12  lg:grid-cols-5 lg:py-32'>
           <div className='col-span-2 lg:col-start-4'>

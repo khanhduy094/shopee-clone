@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Helmet } from 'react-helmet-async'
 import { useQuery } from 'react-query'
 import categoriesApi from 'src/apis/category.api'
 import productApi from 'src/apis/product.api'
@@ -30,6 +30,10 @@ export default function ProductList() {
 
   return (
     <div className='bg-gray-200 py-6'>
+      <Helmet>
+        <title>Trang chủ | ShopeeClone</title>
+        <meta name='description' content='Trang chủ trang ShopeeClone' />
+      </Helmet>
       <div className='container'>
         {productsData && (
           <div className='grid grid-cols-12 gap-6'>

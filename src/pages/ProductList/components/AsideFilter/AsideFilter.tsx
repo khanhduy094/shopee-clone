@@ -10,7 +10,7 @@ import { QueryConfig } from 'src/hooks/useQueryConfig'
 import { Category } from 'src/types/category.type'
 import { NoUndefinedField } from 'src/types/utils.type'
 import { priceSchema, PriceSchemaType } from 'src/utils/rules'
-
+import { useTranslation } from 'react-i18next'
 import RatingStars from '../RatingStars'
 interface Props {
   queryConfig: QueryConfig
@@ -21,6 +21,7 @@ type FormData = NoUndefinedField<PriceSchemaType>
 
 export default function AsideFilter({ queryConfig, categories }: Props) {
   const { category } = queryConfig
+  const { t } = useTranslation('home')
   const {
     formState: { errors },
     handleSubmit,
@@ -70,7 +71,7 @@ export default function AsideFilter({ queryConfig, categories }: Props) {
             </g>
           </g>
         </svg>
-        <span>Tất cả sản phẩm</span>
+        {t('aside filter.all categories')}
       </Link>
       <div className='my-4 h-[1px] bg-gray-300' />
       <ul>
@@ -119,7 +120,8 @@ export default function AsideFilter({ queryConfig, categories }: Props) {
             />
           </g>
         </svg>
-        Bộ lọc tìm kiếm
+
+        {t('aside filter.filter search')}
       </Link>
       <div className='my-4 h-[1px] bg-gray-300' />
       <div className='my-5'>

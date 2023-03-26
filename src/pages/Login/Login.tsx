@@ -1,5 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useContext } from 'react'
+import { Helmet } from 'react-helmet-async'
 import { useForm } from 'react-hook-form'
 import { useMutation } from 'react-query'
 import { Link } from 'react-router-dom'
@@ -56,6 +57,10 @@ export default function Login() {
 
   return (
     <div className='bg-orange'>
+      <Helmet>
+        <title>Đăng nhập | ShopeeClone</title>
+        <meta name='description' content='Đăng nhập | Shopee Clone' />
+      </Helmet>
       <div className='container'>
         <div className='grid grid-cols-1 py-12  lg:grid-cols-5 lg:py-32'>
           <div className='col-span-2 lg:col-start-4'>

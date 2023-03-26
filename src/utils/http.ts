@@ -53,7 +53,7 @@ class Http {
           toast.error(errorMess)
         }
         // Lỗi 401
-        if (error.response?.status !== HttpStatusCode.Unauthorized) {
+        if (error.response?.status === HttpStatusCode.Unauthorized) {
           clearLS()
         }
 

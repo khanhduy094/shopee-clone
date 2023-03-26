@@ -54,6 +54,14 @@ export const getRules = (getValues?: UseFormGetValues<any>): Rules => ({
         : undefined
   }
 })
+const handleConfirmPasswordYup = (refString: string) => {
+  return yup
+    .string()
+    .required('Nhập lại password là bắt buộc')
+    .min(6, 'Độ dài từ 6 - 160 ký tự')
+    .max(160, 'Độ dài từ 6 - 160 ký tự')
+    .oneOf([yup.ref(refString)], 'Nhập lại password không khớp')
+}
 
 function testPriceMinMax(this: yup.TestContext<yup.AnyObject>) {
   const { price_max, price_min } = this.parent as { price_min: string; price_max: string }
@@ -103,9 +111,10 @@ export const userSchema = yup.object({
   address: yup.string().max(160, 'Độ dài tối đa là 160 ký tự'),
   avatar: yup.string().max(1000, 'Độ dài tối đa là 1000 ký tự'),
   date_of_birth: yup.date().max(new Date(), 'Hãy chọn ngày trong quá khứ'),
-  password: schema.fields['password'],
-  new_password: schema.fields['password']
-  // confirm_password: handleConfirmPasswordYup('new_password')
+
+  password: schema.fields['password'] as yup.StringSchema<string | undefined, yup.AnyObject, undefined, ''>,
+  new_password: schema.fields['password'] as yup.StringSchema<string | undefined, yup.AnyObject, undefined, ''>,
+  confirm_password: handleConfirmPasswordYup('new_password')
 })
 
 export type SchemaType = yup.InferType<typeof schema>
