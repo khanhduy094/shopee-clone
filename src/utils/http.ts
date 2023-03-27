@@ -1,5 +1,6 @@
 import axios, { AxiosError, type AxiosInstance } from 'axios'
 import { toast } from 'react-toastify'
+import { URL_LOGIN, URL_REGISTER } from 'src/apis/auth.api'
 
 import HttpStatusCode from 'src/constants/httpStatusCode.enum'
 import { AuthResponse } from 'src/types/auth.type'
@@ -32,7 +33,7 @@ class Http {
     this.instance.interceptors.response.use(
       (response) => {
         const { url } = response.config
-        if (url === 'login' || url === 'register') {
+        if (url === URL_LOGIN || url === URL_REGISTER) {
           const data = response.data as AuthResponse
           this.accessToken = data.data.access_token
           setAccessTokenToLS(this.accessToken)

@@ -1,4 +1,5 @@
 import { useContext } from 'react'
+import { createPortal } from 'react-dom'
 import { useQuery } from 'react-query'
 import { Link } from 'react-router-dom'
 import purchaseApi from 'src/apis/puchase.api'
@@ -7,14 +8,27 @@ import path from 'src/constants/path'
 import { purchasesStatus } from 'src/constants/purchase'
 import { AppContext } from 'src/contexts/app.context'
 import useSearchProducts from 'src/hooks/useSearchProducts'
+import useWindowSize from 'src/hooks/useWindowSize'
 import { formatCurrency } from 'src/utils/utils'
 import NavHeader from '../NavHeader'
 import Popover from '../Popover'
 
+export function BackgroundPortal({ handleBackGroundClick }: { handleBackGroundClick: () => void }) {
+  return createPortal(
+    <div
+      aria-hidden='true'
+      onClick={handleBackGroundClick}
+      className='fixed top-0 left-0 right-0 bottom-0 z-[10] cursor-pointer bg-black/[0.6]'
+    ></div>,
+    document.body
+  )
+}
+
 export default function Header() {
   const MAX_PURCHASES = 5
-  const { isAuthenticated } = useContext(AppContext)
+  const { isAuthenticated, isShowSearch, setIsShowSearch } = useContext(AppContext)
   const { onSubmitSearch, register } = useSearchProducts()
+  const size = useWindowSize()
 
   const { data: purchasesInCartData } = useQuery({
     queryKey: ['purchases', { status: purchasesStatus.inCart }],
@@ -22,10 +36,15 @@ export default function Header() {
     enabled: isAuthenticated
   })
 
+  const handleBackGroundClick = () => {
+    setIsShowSearch(false)
+  }
+
   const purchasesInCart = purchasesInCartData?.data.data
 
   return (
     <div className='bg-[linear-gradient(-180deg,#f53d2d,#f63)] pb-5 pt-2'>
+      {isShowSearch && <BackgroundPortal handleBackGroundClick={handleBackGroundClick} />}
       <div className='container'>
         <NavHeader />
         <div className='mt-4 grid grid-cols-12 items-end gap-4'>
@@ -36,33 +55,36 @@ export default function Header() {
               </g>
             </svg>
           </Link>
-          <form className='col-span-9' onSubmit={onSubmitSearch}>
-            <div className='flex rounded-sm bg-white p-1'>
-              <input
-                type='text'
-                placeholder='Đăng ký và nhận voucher bạn mới đến 70k!'
-                className='flex-grow border-none bg-transparent px-3 py-2 text-black outline-none'
-                {...register('name')}
-              />
-              <button className='flex-shrink-0 rounded-sm bg-orange py-2 px-6 text-white hover:opacity-90'>
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  fill='none'
-                  viewBox='0 0 24 24'
-                  strokeWidth={1.5}
-                  stroke='currentColor'
-                  className='h-6 w-6'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    d='M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z'
-                  />
-                </svg>
-              </button>
-            </div>
-          </form>
-          <div className='col-span-1 justify-self-start text-white'>
+          {size > 768 && (
+            <form className='col-span-9' onSubmit={onSubmitSearch}>
+              <div className='flex rounded-sm bg-white p-1'>
+                <input
+                  type='text'
+                  placeholder='Đăng ký và nhận voucher bạn mới đến 70k!'
+                  className='flex-grow border-none bg-transparent px-3 py-2 text-black outline-none'
+                  {...register('name')}
+                />
+                <button className='flex-shrink-0 rounded-sm bg-orange py-2 px-6 text-white hover:opacity-90'>
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    fill='none'
+                    viewBox='0 0 24 24'
+                    strokeWidth={1.5}
+                    stroke='currentColor'
+                    className='h-6 w-6'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      d='M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z'
+                    />
+                  </svg>
+                </button>
+              </div>
+            </form>
+          )}
+
+          <div className='col-span-9 mr-1 justify-self-end text-white md:col-span-1 md:justify-self-start'>
             <Popover
               placement='bottom-end'
               renderPopover={
@@ -119,7 +141,7 @@ export default function Header() {
                   viewBox='0 0 24 24'
                   strokeWidth={1.5}
                   stroke='currentColor'
-                  className='h-8 w-8'
+                  className='h-6 w-6 md:h-8 md:w-8'
                 >
                   <path
                     strokeLinecap='round'
@@ -128,13 +150,35 @@ export default function Header() {
                   />
                 </svg>
                 {purchasesInCart && purchasesInCart.length > 0 && (
-                  <span className='absolute top-[-5px] left-[17px] rounded-full bg-white px-[9px] py-[1px] text-xs text-orange '>
+                  <span className='absolute top-[-5px] left-[17px] rounded-full bg-white px-[6px] py-[1px] text-xs text-orange md:px-[9px] '>
                     {purchasesInCart?.length}
                   </span>
                 )}
               </Link>
             </Popover>
           </div>
+          {size < 768 && (
+            <div
+              aria-hidden='true'
+              className='col-span-1 justify-self-end text-white'
+              onClick={() => setIsShowSearch(true)}
+            >
+              <svg
+                xmlns='http://www.w3.org/2000/svg'
+                fill='none'
+                viewBox='0 0 24 24'
+                strokeWidth={1.5}
+                stroke='currentColor'
+                className='h-6 w-6 cursor-pointer'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  d='M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z'
+                />
+              </svg>
+            </div>
+          )}
         </div>
       </div>
     </div>

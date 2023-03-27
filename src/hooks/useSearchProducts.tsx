@@ -38,6 +38,8 @@ export default function useSearchProducts() {
       pathname: path.home,
       search: createSearchParams(config).toString()
     })
+
+    console.log(queryConfig)
   })
   return { onSubmitSearch, register }
 }

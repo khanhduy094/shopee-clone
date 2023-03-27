@@ -2,25 +2,31 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import classNames from 'classnames'
 import { omit } from 'lodash'
 import { Controller, useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { createSearchParams, Link, useNavigate } from 'react-router-dom'
 import Button from 'src/components/Button'
 import InputNumber from 'src/components/InputNumber'
 import path from 'src/constants/path'
 import { QueryConfig } from 'src/hooks/useQueryConfig'
+import useWindowSize from 'src/hooks/useWindowSize'
 import { Category } from 'src/types/category.type'
 import { NoUndefinedField } from 'src/types/utils.type'
 import { priceSchema, PriceSchemaType } from 'src/utils/rules'
-import { useTranslation } from 'react-i18next'
 import RatingStars from '../RatingStars'
 interface Props {
   queryConfig: QueryConfig
   categories: Category[]
+  isActive: boolean
+  setIsActive: React.Dispatch<React.SetStateAction<boolean>>
 }
 // type FormData = NoUndefinedField<Pick<PriceSchemaType, 'price_max' | 'price_min'>>
 type FormData = NoUndefinedField<PriceSchemaType>
 
-export default function AsideFilter({ queryConfig, categories }: Props) {
+export default function AsideFilter({ queryConfig, categories, isActive, setIsActive }: Props) {
   const { category } = queryConfig
+  const size = useWindowSize()
+  console.log(isActive)
+
   const { t } = useTranslation('home')
   const {
     formState: { errors },
@@ -45,6 +51,9 @@ export default function AsideFilter({ queryConfig, categories }: Props) {
         price_min: data.price_min
       }).toString()
     })
+    if (size < 768) {
+      setIsActive(false)
+    }
   })
 
   const handleRemoveAll = () => {
@@ -53,10 +62,19 @@ export default function AsideFilter({ queryConfig, categories }: Props) {
       pathname: path.home,
       search: createSearchParams(omit(queryConfig, ['price_min', 'price_max', 'rating_filter', 'category'])).toString()
     })
+    if (size < 768) {
+      setIsActive(false)
+    }
   }
 
   return (
-    <div className='py-4'>
+    <div
+      className={classNames('py-4 px-3', {
+        'fixed  top-0 left-0 bottom-0 z-[80] w-[280px] translate-x-[-100%] bg-white transition-all duration-500':
+          size < 768,
+        'translate-x-[0px]': isActive
+      })}
+    >
       <Link to={path.home} className='flex items-center font-bold '>
         <svg viewBox='0 0 12 10' className='mr-3 h-4 w-3 fill-current'>
           <g fillRule='evenodd' stroke='none' strokeWidth={1}>
@@ -82,11 +100,17 @@ export default function AsideFilter({ queryConfig, categories }: Props) {
               <Link
                 to={{
                   pathname: path.home,
-                  search: createSearchParams({
-                    ...queryConfig,
-                    category: categoryItem._id
-                  }).toString()
+                  search: createSearchParams(
+                    omit(
+                      {
+                        ...queryConfig,
+                        category: categoryItem._id
+                      },
+                      ['name']
+                    )
+                  ).toString()
                 }}
+                onClick={() => setIsActive(false)}
                 className={classNames('relative px-2', {
                   'font-semibold text-orange': isActive
                 })}
@@ -181,7 +205,7 @@ export default function AsideFilter({ queryConfig, categories }: Props) {
       </div>
       <div className='my-4 h-[1px] bg-gray-300' />
       <div className='text-sm'>Đánh giá</div>
-      <RatingStars queryConfig={queryConfig} />
+      <RatingStars setIsActive={setIsActive} queryConfig={queryConfig} />
       <div className='my-4 h-[1px] bg-gray-300' />
       <Button
         onClick={handleRemoveAll}

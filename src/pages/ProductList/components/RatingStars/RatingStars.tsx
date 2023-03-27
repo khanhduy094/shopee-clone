@@ -4,9 +4,10 @@ import { QueryConfig } from 'src/hooks/useQueryConfig'
 
 interface Props {
   queryConfig: QueryConfig
+  setIsActive: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export default function RatingStars({ queryConfig }: Props) {
+export default function RatingStars({ queryConfig, setIsActive }: Props) {
   const navigate = useNavigate()
 
   const handleFilterStar = (ratingFilter: number) => {
@@ -17,6 +18,7 @@ export default function RatingStars({ queryConfig }: Props) {
         rating_filter: String(ratingFilter)
       }).toString()
     })
+    setIsActive(false)
   }
 
   return (
