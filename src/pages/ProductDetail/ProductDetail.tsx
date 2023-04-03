@@ -214,7 +214,7 @@ export default function ProductDetail() {
                   {product.quantity} sản phẩm có sẵn
                 </div>
               </div>
-              <div className='mt-8 flex flex-col items-center'>
+              <div className='mt-8 flex  items-center'>
                 <button
                   className='mb-4 flex h-12 items-center justify-center rounded-sm border border-orange bg-orange/10 px-5 capitalize text-orange shadow-sm hover:bg-orange/5 md:mb-0'
                   onClick={addToCart}
@@ -246,7 +246,7 @@ export default function ProductDetail() {
                 </button>
                 <button
                   onClick={buyNow}
-                  className=' ml-4 flex h-12  items-center justify-center rounded-sm bg-orange px-5 capitalize text-white shadow-sm outline-none hover:bg-orange/90  '
+                  className='ml-4 flex  h-12 items-center justify-center rounded-sm bg-orange px-5 capitalize text-white shadow-sm outline-none hover:bg-orange/90  '
                 >
                   Mua ngay
                 </button>
