@@ -113,7 +113,7 @@ export default function ProductDetail() {
       <div className='container'>
         <div className='bg-white p-4 shadow'>
           <div className='grid grid-cols-12 gap-9'>
-            <div className='col-span-5'>
+            <div className='col-span-12 md:col-span-5'>
               <div className='relative w-full cursor-zoom-in overflow-hidden pt-[100%] shadow'>
                 <img
                   src={activeImage}
@@ -177,7 +177,7 @@ export default function ProductDetail() {
                 </button>
               </div>
             </div>
-            <div className='col-span-7'>
+            <div className='col-span-12 md:col-span-7'>
               <h1 className='text-xl font-medium uppercase'>{product.name}</h1>
               <div className='mt-8 flex items-center'>
                 <div className='flex items-center'>
@@ -194,15 +194,15 @@ export default function ProductDetail() {
                   <span className='ml-1 text-gray-500'>Đã bán</span>
                 </div>
               </div>
-              <div className='mt-8 flex items-center bg-gray-50 px-5 py-4'>
+              <div className='mt-8  flex items-center bg-gray-50 px-5 py-4'>
                 <div className='text-gray-500 line-through'>₫{formatCurrency(product.price_before_discount)}</div>
-                <div className='ml-3 text-3xl font-medium text-orange'>₫{formatCurrency(product.price)}</div>
+                <div className='ml-3 text-xl font-medium text-orange md:text-3xl'>₫{formatCurrency(product.price)}</div>
                 <div className='ml-4 rounded-sm bg-orange px-1 py-[2px] text-xs font-semibold uppercase text-white'>
                   {rateSale(product.price_before_discount, product.price)} giảm
                 </div>
               </div>
-              <div className='mt-8 flex items-center'>
-                <div className='capitalize text-gray-500'>Số lượng</div>
+              <div className='mt-8  block  items-center md:flex'>
+                <div className=' mb-2 capitalize text-gray-500 md:mb-0'>Số lượng</div>
                 <QuantityController
                   onIncrease={handleBuyCount}
                   onDecrease={handleBuyCount}
@@ -210,11 +210,13 @@ export default function ProductDetail() {
                   value={buyCount}
                   max={product.quantity}
                 />
-                <div className='ml-6 text-sm text-gray-500'>{product.quantity} sản phẩm có sẵn</div>
+                <div className='ml-0 mt-2 text-sm text-gray-500 md:ml-6 md:mt-0'>
+                  {product.quantity} sản phẩm có sẵn
+                </div>
               </div>
-              <div className='mt-8 flex items-center'>
+              <div className='mt-8 flex flex-col items-center'>
                 <button
-                  className='flex h-12 items-center justify-center rounded-sm border border-orange bg-orange/10 px-5 capitalize text-orange shadow-sm hover:bg-orange/5'
+                  className='mb-4 flex h-12 items-center justify-center rounded-sm border border-orange bg-orange/10 px-5 capitalize text-orange shadow-sm hover:bg-orange/5 md:mb-0'
                   onClick={addToCart}
                 >
                   <svg
@@ -244,7 +246,7 @@ export default function ProductDetail() {
                 </button>
                 <button
                   onClick={buyNow}
-                  className='fkex ml-4 h-12 min-w-[5rem] items-center justify-center rounded-sm bg-orange px-5 capitalize text-white shadow-sm outline-none hover:bg-orange/90'
+                  className=' ml-4 flex h-12  items-center justify-center rounded-sm bg-orange px-5 capitalize text-white shadow-sm outline-none hover:bg-orange/90  '
                 >
                   Mua ngay
                 </button>
